@@ -2,3 +2,7 @@
 
 Ce repository regroupe l'ensemble des fichiers, codes et autres données créés
 pendant le suivi de ce cours.
+
+## Liens utiles
+
+https://numpy.org/doc/stable/
