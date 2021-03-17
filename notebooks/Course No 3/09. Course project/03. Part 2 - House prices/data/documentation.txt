@@ -49,7 +49,7 @@ Lot Frontage (Continuous): Linear feet of street connected to property
 
 Lot Area (Continuous): Lot size in square feet
 
-Street (Nominal): Type of road access to property
+Streetl (Nominal): Type of road access to property
 
        Grvl	Gravel	
        Pave	Paved
