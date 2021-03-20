@@ -371,7 +371,7 @@ Central Air (Nominal): Central air conditioning
        Y	Yes
 		
 Electrical (Ordinal): Electrical system
-
+Eter
        SBrkr	Standard Circuit Breakers & Romex
        FuseA	Fuse Box over 60 AMP and all Romex wiring (Average)	
        FuseF	60 AMP Fuse Box and mostly Romex wiring (Fair)
