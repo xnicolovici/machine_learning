@@ -15,24 +15,24 @@ def loadNpz(filename=os.path.join('data','data.npz')):
     with np.load(filename) as npz_file:
         
         # Load constant
-        data_dict={key: value for key, value in zip(npz_file['constant_label'], npz_file['constant_value'])}    
+        data_dict={key: value for key, value in zip(npz_file['constant_labels'], npz_file['constant_values'])}
         
+        # Load class_name
+        data_dict['class_name']=npz_file['class_name']
+        
+        # Load dataset
         for name in data_dict['DATASET_NAME']:
             print("Loading '{}' set".format(name))
             data_dict[name]=dict()
             
-            for data_type in ['data', 'features', 'filenames']:
+            for data_type in ['data', 'features', 'filenames', 'labels']:
                 print("  loading ", data_type)
                 data_dict[name][data_type]=npz_file['{}_{}'.format(name, data_type)]
                 print('     shape: {} - dtype: {}'.format(data_dict[name][data_type].shape, data_dict[name][data_type].dtype))
-            #print("Loading features from {} set".format(name))
-            #features[name]=npz_file['{}_features'.format(name)]
-            #print('  shape: {} - dtype: {}'.format(features[name].shape, features[name].dtype))
-            #print("Loading filenames from {} set".format(name))
-            #filenames[name]=npz_file['{}_filenames'.format(name)]
-            #print('  shape: {} - dtype: {}'.format(filenames[name].shape, filenames[name].dtype))
 
             print("\n")
+            
+        # Return the structure prepared by this function
         return data_dict
     
 
