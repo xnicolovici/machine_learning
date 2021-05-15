@@ -36,7 +36,7 @@ def loadNpz(filename=os.path.join('data','data.npz')):
         return data_dict
     
 
-def loadXy(data=None):
+def loadXy(data=None, concatenate=[]):
     """
     This function returns the data, X_train, y_train, X_valid, y_valid, X_test and y_test vectors
     from the data passed as parameter.
