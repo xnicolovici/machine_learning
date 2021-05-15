@@ -36,4 +36,25 @@ def loadNpz(filename=os.path.join('data','data.npz')):
         return data_dict
     
 
+def loadXy(data=None):
+    """
+    This function returns the data, X_train, y_train, X_valid, y_valid, X_test and y_test vectors
+    from the data passed as parameter.
+    If the data parameter is set to None, this function uses the loadNpz() function with default parameter
+    to get the data.
+    Note that the data passed as parameter must comply with the structure passed in Notebook number 1
+    """
 
+    if data==None:
+        data=loadNpz()
+
+    X=dict()
+    y=dict()
+    # Get X_train from high level feateurs and y_train from labels
+    for name in data['DATASET_NAME']:
+        X[name]=data[name]['features']
+        y[name]=data[name]['labels']
+        print("X {} shape:".format(name),X[name].shape)
+        print("y {} shape:".format(name),X[name].shape)
+
+    return (data, X, y)
