@@ -77,3 +77,34 @@ def loadXy(data=None, concatenate=[]):
     print("y['trainX'] shape:", X['trainX'].shape)
     
     return (data, X, y)
+
+import pickle
+
+def getModelFilename(model_name):
+    """
+    Basic function that will return the filename used to store on disk the model
+    passed as parameter
+    """
+    return 'model-{}.sav'.format(model_name)
+
+def saveModel(model, name):
+    """
+    Function that saves on disk the model passed as first parameter.
+    It uses the function getModelFilename() with the 'name' parameter
+    to get the filename where to save the model
+    """
+    filename=getModelFilename(name)
+    # Save model to disk
+    print("Saving model {} to {}".format(name, filename))
+    pickle.dump(model, open(filename, 'wb'))
+
+def loadModel(name):
+    """
+    Function that loads from disk the model of which name is passed as first parameter.
+    It uses the function getModelFilename() with the 'name' parameter
+    to get the filename from where to load the model
+    """
+    filename=getModelFilename(name)
+    # load the model from disk
+    print("Loading model from ", filename)
+    return pickle.load(open(filename, 'rb'))
