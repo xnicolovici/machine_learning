@@ -122,7 +122,16 @@ def loadModel(name):
 
 
 
-def plotGridSearchResults(results_df, x_param, y_param=[], semilogx=True, xlabel='', ylabel='accuracy (%)', title='', figsize=(15,10), std_param={}):
+def plotGridSearchResults(results_df,
+                          x_param,
+                          y_param=[],
+                          semilogx=True,
+                          xlabel='GridSearch parameter',
+                          ylabel='accuracy (%)',
+                          title='GridSearch results',
+                          figsize=(15,10),
+                          std_params={},
+                          std_factor=1):
     """
     Function to graph data points from GridSearchCV results. Can be used to graph the mean test and train
     score of a GridSearchCV fitted object.
@@ -139,6 +148,10 @@ def plotGridSearchResults(results_df, x_param, y_param=[], semilogx=True, xlabel
         figsize: Size ot the graph
         std_param: A dict with key=y_param element and value the corresponding std deviation column name.
             This parameters is used to draw the std deviation of the y_params as a filled area around the data plot
+        std_factor: This parameter is used to amplify the standard deviation when building the std dev filled area.
+            Default value is 1 and changing increasing it allows displaying standard 'small' deviation behaviours.
+            Be warn that when changing this parameter to a value other that 1, the filled area does not represent
+            absolute values but a trend of it.
             
     The function will also determine, for each of the y_param to be plotted, which is the plot with the highest
     y_param value, and use the coordinates to draw a red cross on the plotted line, along with horizontal and
@@ -165,7 +178,7 @@ def plotGridSearchResults(results_df, x_param, y_param=[], semilogx=True, xlabel
         # Get best x information
         best_x = temp_df[x_param][best_idx]
         # Get x plots
-        x_values=temp_df[x_param]
+        x_values=temp_df[x_param].astype('float64')
         # Store x_min and x_max if needed
         if x_min>np.min(x_values):
             x_min=np.min(x_values)
@@ -196,11 +209,24 @@ def plotGridSearchResults(results_df, x_param, y_param=[], semilogx=True, xlabel
         plt.plot([best_x, best_x], [0, best_y], c='red', alpha=0.5, linestyle='--')
         plt.plot([np.min(x_values), best_x], [best_y, best_y], c='red', alpha=0.5, linestyle='--')
         
+        # Do we have any std_param set for this loop ?
+        for key in std_params:
+            if key==i:
+                # Get the std deviation values from std_param column name
+                std_values=temp_df[std_params[key]]
+                # plot a filled area to represent the standard deviation
+                if std_factor==1:
+                    label=std_params[key]
+                else:
+                    label='{} x {}'.format(std_params[key], std_factor)
+                plt.fill_between(x_values, y_values+std_factor*std_values, y_values-std_factor*std_values, alpha=0.4,
+                                 label=label)
+                
+                
+        
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
     plt.ylim(bottom=y_min, top=y_max+1)
-    # plt.xlim(left=x_min, right=x_max)
     plt.legend()
     plt.show()
-
