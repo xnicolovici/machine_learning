@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-def loadNpz(filename=os.path.join('data','data.npz')):
+def loadNpz(filename=os.path.join('data','data.npz'), verbose=True):
     """
     This function returns the content of the NPZ file passed as parameter.
     The NPZ file passed must been build according to the first Notebook process of this project
@@ -22,34 +22,40 @@ def loadNpz(filename=os.path.join('data','data.npz')):
         
         # Load dataset
         for name in data_dict['DATASET_NAME']:
-            print("Loading '{}' set".format(name))
+            if verbose:
+                print("Loading '{}' set".format(name))
             data_dict[name]=dict()
             
             for data_type in ['data', 'features', 'filenames', 'labels']:
-                print("  loading ", data_type)
+                if verbose:
+                    print("  loading ", data_type)
                 data_dict[name][data_type]=npz_file['{}_{}'.format(name, data_type)]
-                print('     shape: {} - dtype: {}'.format(data_dict[name][data_type].shape, data_dict[name][data_type].dtype))
+                if verbose:
+                    print('     shape: {} - dtype: {}'.format(data_dict[name][data_type].shape, data_dict[name][data_type].dtype))
+            if verbose:
+                print("\n")
 
-            print("\n")
-
+        if verbose:
+            print("building '{}' set".format(name))
+            
         name='trainX'
-        print("building '{}' set".format(name))
         data_dict[name]=dict()
             
         for data_type in ['data', 'features', 'filenames', 'labels']:
-            print("  building ", data_type)
+            if verbose:
+                print("  building ", data_type)
             data_dict[name][data_type]=np.concatenate((data_dict['train'][data_type], data_dict['valid'][data_type]), axis=0)
-            print('     shape: {} - dtype: {}'.format(data_dict[name][data_type].shape, data_dict[name][data_type].dtype))
+            if verbose:
+                print('     shape: {} - dtype: {}'.format(data_dict[name][data_type].shape, data_dict[name][data_type].dtype))
 
-        print("\n")
-
-
+        if verbose:
+            print("\n")
             
         # Return the structure prepared by this function
         return data_dict
     
 
-def loadXy(data=None, concatenate=[]):
+def loadXy(data=None, concatenate=[], verbose=True):
     """
     This function returns the data, an X and a y dict containing 'train', 'valid', 'test' and 'trainX' vectors
     from the data passed as parameter.
@@ -60,7 +66,7 @@ def loadXy(data=None, concatenate=[]):
     """
 
     if data==None:
-        data=loadNpz()
+        data=loadNpz(verbose=verbose)
 
     X=dict()
     y=dict()
@@ -68,13 +74,15 @@ def loadXy(data=None, concatenate=[]):
     for name in data['DATASET_NAME']:
         X[name]=data[name]['features']
         y[name]=data[name]['labels']
-        print("X['{}'] shape:".format(name),X[name].shape)
-        print("y['{}'] shape:".format(name),X[name].shape)
+        if(verbose==True):
+            print("X['{}'] shape:".format(name),X[name].shape)
+            print("y['{}'] shape:".format(name),X[name].shape)
 
     X['trainX']=np.concatenate((X['train'], X['valid']), axis=0)
     y['trainX']=np.concatenate((y['train'], y['valid']), axis=0)
-    print("X['trainX'] shape:", X['trainX'].shape)
-    print("y['trainX'] shape:", X['trainX'].shape)
+    if(verbose==True):
+        print("X['trainX'] shape:", X['trainX'].shape)
+        print("y['trainX'] shape:", X['trainX'].shape)
     
     return (data, X, y)
 
