@@ -1,5 +1,9 @@
+import pandas as pd
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+import pickle
+
 
 def loadNpz(filename=os.path.join('data','data.npz'), verbose=True):
     """
@@ -86,7 +90,6 @@ def loadXy(data=None, concatenate=[], verbose=True):
     
     return (data, X, y)
 
-import pickle
 
 def getModelFilename(model_name):
     """
@@ -116,3 +119,88 @@ def loadModel(name):
     # load the model from disk
     print("Loading model from ", filename)
     return pickle.load(open(filename, 'rb'))
+
+
+
+def plotGridSearchResults(results_df, x_param, y_param=[], semilogx=True, xlabel='', ylabel='accuracy (%)', title='', figsize=(15,10), std_param={}):
+    """
+    Function to graph data points from GridSearchCV results. Can be used to graph the mean test and train
+    score of a GridSearchCV fitted object.
+    Note that the graph built expects % values on the Y axis (mean_test_score, mean_train_score for example) 
+    Mandatory parameters are:
+        results_df: A dataframe built from GridSearchCV.cv_results_
+        x_param: The column name of the results_df dataframe to be used as X axis
+        y_param: An array of column to be plotted on the Y axis. Those values must be %.
+    Optionnal parameters:
+        semilogx: If True, the X data points are plotted using a log10 scale
+        xlabel: Label of the X axis
+        ylabel: Label of the Y axis
+        title: Title of the graph
+        figsize: Size ot the graph
+        std_param: A dict with key=y_param element and value the corresponding std deviation column name.
+            This parameters is used to draw the std deviation of the y_params as a filled area around the data plot
+            
+    The function will also determine, for each of the y_param to be plotted, which is the plot with the highest
+    y_param value, and use the coordinates to draw a red cross on the plotted line, along with horizontal and
+    vertical lines to the X and Y axis.
+    For that purpose, the function first sort the results_df dataframe using the x_param column in ascending order.
+    """
+    # Order dataframe by xparam value
+    temp_df=results_df.sort_values(x_param, ascending=True)
+
+    # Define figsize
+    plt.figure(figsize=figsize)
+
+    # Store x_min, x_max, y_min and y_max values to set xlimit and ylimit of the graph
+    x_min=0
+    y_min=100
+    x_max=0
+    y_max=0
+    
+    # Loop for each yparam plot
+    for i in y_param:
+        # Find indices of  the best y value
+        best_idx=temp_df[i].idxmax()
+
+        # Get best x information
+        best_x = temp_df[x_param][best_idx]
+        # Get x plots
+        x_values=temp_df[x_param]
+        # Store x_min and x_max if needed
+        if x_min>np.min(x_values):
+            x_min=np.min(x_values)
+        if x_max<np.max(x_values):
+            x_max=np.max(x_values)
+
+
+
+        # get best y information
+        best_y=temp_df[i][best_idx]*100 # Multiply by 100 to get %
+        # Get y plots
+        y_values=temp_df[i]*100
+        # Store y_min and y_max if needed
+        if y_min>np.min(y_values):
+            y_min=np.min(y_values)-y_values.std()
+        if y_max<np.max(y_values):
+            y_max=np.max(y_values)+y_values.std()
+
+        if semilogx:
+            plt.semilogx(x_values, y_values, label=i)
+        else:
+            plt.plot(x_values, y_values, label=i)
+
+        # Draw a cross on the best_x/best_accuracy point
+        plt.scatter(best_x, best_y, marker='x', c='red', zorder=10)
+        # Write near of the cross the best_y/best_y value
+        plt.text(best_x, best_y+0.5, 'x:{:.3f} y:{:.1f}'.format(best_x, best_y))
+        plt.plot([best_x, best_x], [0, best_y], c='red', alpha=0.5, linestyle='--')
+        plt.plot([np.min(x_values), best_x], [best_y, best_y], c='red', alpha=0.5, linestyle='--')
+        
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+    plt.ylim(bottom=y_min, top=y_max+1)
+    # plt.xlim(left=x_min, right=x_max)
+    plt.legend()
+    plt.show()
+
