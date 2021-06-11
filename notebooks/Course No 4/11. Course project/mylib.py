@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import pickle
+import tensorflow.keras as keras
 
 
 def loadNpz(filename=os.path.join('data','data.npz'), verbose=True):
@@ -102,23 +103,43 @@ def saveModel(model, name):
     """
     Function that saves on disk the model passed as first parameter.
     It uses the function getModelFilename() with the 'name' parameter
-    to get the filename where to save the model
+    to get the filename where to save the model.
+    This function checks the type of model received. If it's a keras.Sequential,
+    then it uses the keras.models.save_model fuinction to save it.
+    Use pickle otherwise.
     """
     filename=getModelFilename(name)
     # Save model to disk
-    print("Saving model {} to {}".format(name, filename))
-    pickle.dump(model, open(filename, 'wb'))
+    if isinstance(model, keras.Sequential):
+        print("Saving model {} to {} using 'keras.models.save_model' library".format(name, filename))
+        keras.models.save_model(model, filename, overwrite=True)
+    else:
+        print("Saving model {} to {} using 'pickle' library".format(name, filename))
+        pickle.dump(model, open(filename, 'wb'))
+
 
 def loadModel(name):
     """
     Function that loads from disk the model of which name is passed as first parameter.
     It uses the function getModelFilename() with the 'name' parameter
     to get the filename from where to load the model
+    This function tries to first load the model using pickle. If it fails, then
+    it fallback to keras.models.load_model function, as the content of the file might be
+    a keras object if loading fails with pickle.
     """
     filename=getModelFilename(name)
     # load the model from disk
     print("Loading model from ", filename)
-    return pickle.load(open(filename, 'rb'))
+    model=None
+    try:
+        model=pickle.load(open(filename, 'rb'))
+        print("Model loaded using pickle()")
+    except:
+        model=keras.models.load_model(filename)
+        print("Model loaded using keras.models.load_model()")
+    finally:
+        return model
+
 
 
 
