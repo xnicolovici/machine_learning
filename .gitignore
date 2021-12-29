@@ -4,3 +4,4 @@
 .idea
 *.sqlite
 .DS_Store
+*.gz
